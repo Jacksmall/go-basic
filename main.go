@@ -1,43 +1,37 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
+	"log"
+	"os"
+	"time"
 
-	"github.com/Jacksmall/go-basic/morestrings"
-	"github.com/google/go-cmp/cmp"
+	"github.com/Jacksmall/go-basic/runner"
 )
 
-type Counter int
+var timeout = 3 * time.Second
 
 func main() {
-	s := morestrings.ReverseRunes("Hello World")
-	fmt.Println(s)
-	fmt.Println(cmp.Diff("Hello Wolrd", "Hello Go"))
-	// defer
-	for i := 0; i < 5; i++ {
-		defer fmt.Println(i)
-	}
-	// slice
-	slices := make([]int, 10)
-	slices = append(slices, 1, 2, 3, 4)
-	for _, item := range slices {
-		fmt.Println(item)
-	}
-	// map
-	attend := map[string]bool{
-		"ck": true,
-		"lc": false,
+	r := runner.New(timeout)
+
+	r.Add(createTest(), createTest(), createTest())
+
+	if err := r.Start(); err != nil {
+		switch err {
+		case runner.ErrTimeout:
+			log.Println("Terminal due to timeout")
+			os.Exit(1)
+		case runner.ErrInterrupt:
+			log.Println("Terminal due to interrupt")
+			os.Exit(2)
+		}
 	}
 
-	for key, item := range attend {
-		fmt.Printf("%v => %v\n", key, item)
-	}
-	fmt.Println(attend["ck"])
-
+	log.Println("Process End.")
 }
 
-func (ctr *Counter) ServeHttp(w http.ResponseWriter, r *http.Request) {
-	*ctr++
-	fmt.Println(ctr)
+func createTest() func(int) {
+	return func(id int) {
+		log.Printf("Task Process #%d", id)
+		time.Sleep(time.Duration(id) * time.Second)
+	}
 }
