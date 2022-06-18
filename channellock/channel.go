@@ -23,6 +23,8 @@ func main() {
 
 	// 等待比赛结束
 	wg.Wait()
+
+	next()
 }
 
 func Runner(baton chan int) {

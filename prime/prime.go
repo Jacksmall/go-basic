@@ -14,16 +14,22 @@ import (
 var wg sync.WaitGroup
 
 func main() {
-	wg.Add(2)
+	// wg.Add(2)
 
-	go PrintPrime("A")
-	go PrintPrime("B")
+	// go PrintPrime("A")
+	// go PrintPrime("B")
 
-	fmt.Println("等待程序运行完成...")
+	// fmt.Println("等待程序运行完成...")
 
-	wg.Wait()
+	// wg.Wait()
 
-	fmt.Println("程序运行完成!")
+	// fmt.Println("程序运行完成!")
+	ch := GeneralizeNumber()
+	for i := 0; i < 100; i++ {
+		prime := <-ch
+		fmt.Printf("%v: %v\n", i, prime)
+		ch = PrimeFilter(ch, prime)
+	}
 }
 
 func PrintPrime(prefix string) {
@@ -38,4 +44,30 @@ next:
 		fmt.Printf("%s:%d\n", prefix, outer)
 	}
 	fmt.Printf("Completed %s\n", prefix)
+}
+
+func GeneralizeNumber() chan int {
+	ch := make(chan int)
+
+	go func() {
+		for i := 2; ; i++ {
+			ch <- i
+		}
+	}()
+
+	return ch
+}
+
+func PrimeFilter(in <-chan int, prime int) chan int {
+	out := make(chan int)
+
+	go func() {
+		for {
+			if i := <-in; i%prime != 0 {
+				out <- i
+			}
+		}
+	}()
+
+	return out
 }
