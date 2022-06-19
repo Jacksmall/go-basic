@@ -7,11 +7,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"sync"
+	_ "sync"
 )
 
-var wg sync.WaitGroup
+// var wg sync.WaitGroup
 
 func main() {
 	// wg.Add(2)
@@ -24,47 +25,58 @@ func main() {
 	// wg.Wait()
 
 	// fmt.Println("程序运行完成!")
-	ch := GeneralizeNumber()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	ch := GeneralizeNumber(ctx)
 	for i := 0; i < 100; i++ {
 		prime := <-ch
 		fmt.Printf("%v: %v\n", i, prime)
-		ch = PrimeFilter(ch, prime)
+		ch = PrimeFilter(ctx, ch, prime)
 	}
 }
 
-func PrintPrime(prefix string) {
-	defer wg.Done()
-next:
-	for outer := 2; outer < 5000; outer++ {
-		for inner := 2; inner < outer; inner++ {
-			if outer%inner == 0 {
-				continue next
-			}
-		}
-		fmt.Printf("%s:%d\n", prefix, outer)
-	}
-	fmt.Printf("Completed %s\n", prefix)
-}
+// func PrintPrime(prefix string) {
+// 	defer wg.Done()
+// next:
+// 	for outer := 2; outer < 5000; outer++ {
+// 		for inner := 2; inner < outer; inner++ {
+// 			if outer%inner == 0 {
+// 				continue next
+// 			}
+// 		}
+// 		fmt.Printf("%s:%d\n", prefix, outer)
+// 	}
+// 	fmt.Printf("Completed %s\n", prefix)
+// }
 
-func GeneralizeNumber() chan int {
+func GeneralizeNumber(ctx context.Context) chan int {
 	ch := make(chan int)
 
 	go func() {
 		for i := 2; ; i++ {
-			ch <- i
+			select {
+			case ch <- i:
+			case <-ctx.Done():
+				return
+			}
 		}
 	}()
 
 	return ch
 }
 
-func PrimeFilter(in <-chan int, prime int) chan int {
+func PrimeFilter(ctx context.Context, in <-chan int, prime int) chan int {
 	out := make(chan int)
 
 	go func() {
 		for {
 			if i := <-in; i%prime != 0 {
-				out <- i
+				select {
+				case out <- i:
+				case <-ctx.Done():
+					return
+				}
+
 			}
 		}
 	}()
