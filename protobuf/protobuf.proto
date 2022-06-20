@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package protobuf;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package="github.com/Jacksmall/go-basic/protobuf";
+
+message Person {
+    string name = 1;
+    int32 id = 2; // 唯一键
+    string email = 3;
+    // 电话枚举
+    enum PhoneType {
+        MOBILE = 0;
+        WORK = 1;
+        HOME = 2;
+    }
+    // 电话号码
+    message PhoneNumber {
+        string number = 1;
+        PhoneType type = 2;
+    }
+
+    repeated PhoneNumber phones = 4; // repeated 可以重复
+    google.protobuf.Timestamp last_updated = 5; // google 时间戳
+}
+
+// 某个人的电话簿
+message AddressBook {
+    repeated Person people = 1;
+}
