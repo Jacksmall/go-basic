@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -11,6 +12,12 @@ import (
 var timeout = 3 * time.Second
 
 func main() {
+
+	a := 2
+	b := &a // 0xc000018088
+	*b = 3
+	fmt.Println(b, a) // 0xc000018090 3
+
 	r := runner.New(timeout)
 
 	r.Add(createTest(), createTest(), createTest())
