@@ -1,4 +1,4 @@
-package morestrings
+package main
 
 import (
 	"flag"
@@ -26,6 +26,7 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 	// ... rest of the program ...
+	ReverseRunes("Hello, World!2222你好啊")
 
 	if *memprofile != "" {
 		f, err := os.Create(*memprofile)
