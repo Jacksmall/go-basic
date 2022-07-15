@@ -30,6 +30,10 @@ func (dp *DecoratorProcess) Print(rh RequestHelper) string {
 
 type MainProcess struct{}
 
+func NewMainProcess() *MainProcess {
+	return &MainProcess{}
+}
+
 func (mp MainProcess) process(RequestHelper) string {
 	return "Main"
 }
@@ -60,11 +64,11 @@ func main() {
 	dd := DecoratorProcess{
 		dp: make([]ProcessRequest, 0),
 	}
-
+	// 过滤器 == 中间件
 	dd.Use(LogProcess{})
 	dd.Use(AuthorizationProcess{})
 	dd.Use(StructureProcess{})
-	dd.Use(MainProcess{})
+	dd.Use(NewMainProcess())
 
 	fmt.Println(dd.Print(req))
 }
