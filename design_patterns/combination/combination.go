@@ -1,74 +1,75 @@
 /**
- * TODO 组合模式
+ * composite design_patterns
+ * 将战斗单元不停的组合，射手是一个战斗单元，加农炮是一个战斗单元，两者都是局部对象
+ * 军队是多个战斗单元组成的，力量是所有战斗单元之和，多个军队可以组合为一个军队，是组合对象
+ * 可以合并军队，也可以移除军队中的某个军队
  */
 package main
 
 import "fmt"
 
-type Unit struct {
-	bombandStrength uint // 战斗强度
+// UnitComponent 战斗单元Component
+type UnitComponent interface {
+	bombandStrength() uint
 }
 
-// ======= region start =======
+// Archer 射手leaf
+type Archer struct{}
+
+func (ar Archer) bombandStrength() uint {
+	return 4
+}
+
+// LandCanor 加农炮leaf
+type LandCanor struct{}
+
+func (lc LandCanor) bombandStrength() uint {
+	return 10
+}
+
+// Army 军队->composite组合对象, 可以将不同的军队组合
 type Army struct {
-	units []Unit
+	units []UnitComponent
 }
 
 func NewArmy() *Army {
-	return &Army{
-		units: make([]Unit, 0),
-	}
+	return &Army{}
 }
 
-func (a *Army) addUnit(u Unit) {
-	if isExist := find(a.units, u); !isExist {
-		a.units = append(a.units, u)
-	}
+func (ay *Army) addUnit(unit UnitComponent) {
+	ay.units = append(ay.units, unit)
 }
 
-func (a *Army) removeUnit(u Unit) {
-	a.units = removeSlice(a.units, u)
-}
-
-// ======= end region =======
-
-type Archer struct {
-	Unit
-}
-
-type Tomp struct {
-	Unit
-}
-
-func removeSlice(x []Unit, r Unit) []Unit {
-	for i := 0; i < len(x); i++ {
-		if x[i] == r {
-			x = append(x[:i], x[i+1:]...)
-			i--
+func (ay *Army) removeUnit(unit UnitComponent) {
+	for k, v := range ay.units {
+		if v == unit {
+			ay.units = append(ay.units[:k], ay.units[k+1:]...)
 		}
 	}
-	return x
 }
 
-func find(x []Unit, r Unit) bool {
-	for _, v := range x {
-		if v == r {
-			return true
-		}
+func (ay *Army) bombandStrength() uint {
+	sum := 0
+	for _, v := range ay.units {
+		sum += int(v.bombandStrength())
 	}
-	return false
+	return uint(sum)
 }
 
 func main() {
-	archer := Archer{Unit: Unit{bombandStrength: 10}}
-	tomp := Tomp{Unit: Unit{bombandStrength: 5}}
+	unit1 := &Archer{}
+	unit2 := &LandCanor{}
+
 	army := NewArmy()
-	army.addUnit(archer.Unit)
-	army.addUnit(tomp.Unit)
-	army.removeUnit(tomp.Unit)
-	sum := 0
-	for _, v := range army.units {
-		sum += int(v.bombandStrength)
-	}
-	fmt.Println(sum)
+	army.addUnit(unit1)
+	army.addUnit(unit2)
+	army.removeUnit(unit1)
+
+	fmt.Println(army.bombandStrength())
+
+	army2 := NewArmy()
+	army2.addUnit(unit1)
+	army2.addUnit(army)
+
+	fmt.Println(army2.bombandStrength())
 }
