@@ -21,7 +21,7 @@ var (
 
 func main() {
 
-	runtime.GOMAXPROCS(1)
+	// runtime.GOMAXPROCS(1)
 
 	wg.Add(2)
 

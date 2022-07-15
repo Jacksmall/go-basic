@@ -1,3 +1,6 @@
+/**
+ * 原型模式
+ */
 package main
 
 import (
@@ -49,9 +52,11 @@ func NewFactory(sea Sea, plains Plains) *TerrainFactory {
 }
 
 func (t TerrainFactory) getSea() Sea {
-	var sea Sea
-	sea = t.sea
-	return sea
+	// 修改earthSea 的 level 属性
+	var earthSea EarthSea
+	earthSea.level = 10
+	t.sea = earthSea
+	return t.sea
 }
 
 func (t TerrainFactory) getPlains() Plains {
@@ -59,7 +64,7 @@ func (t TerrainFactory) getPlains() Plains {
 }
 
 func main() {
-	factory := NewFactory(EarthSea{2}, MarsPlains{})
+	factory := NewFactory(EarthSea{}, MarsPlains{})
 	fmt.Println(factory.getSea().Say())
 	fmt.Println(factory.getPlains().Say())
 }

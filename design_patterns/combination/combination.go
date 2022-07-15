@@ -1,42 +1,43 @@
-package combination
+/**
+ * TODO 组合模式
+ */
+package main
 
-import "errors"
+import "fmt"
 
-type UnitInterface interface {
-	addUnit(unit Unit)
-	removeUnit(unit Unit) (bool, error)
-	bombardStrength() uint
+type Unit struct {
+	bombandStrength uint // 战斗强度
 }
 
-type Unit struct{}
-
+// ======= region start =======
 type Army struct {
 	units []Unit
 }
 
-func (a Army) addUnit(unit Unit) {
-	if isExist := find(a.units, unit); !isExist {
-		a.units = append(a.units, unit)
+func NewArmy() *Army {
+	return &Army{
+		units: make([]Unit, 0),
 	}
 }
 
-func (a Army) removeUnit(unit Unit) (bool, error) {
-	removeSlice(a.units, unit)
-	return true, nil
+func (a *Army) addUnit(u Unit) {
+	if isExist := find(a.units, u); !isExist {
+		a.units = append(a.units, u)
+	}
 }
 
-func (a Army) bombardStrength() uint {
-	return 4
+func (a *Army) removeUnit(u Unit) {
+	a.units = removeSlice(a.units, u)
 }
 
-type Archer struct{}
+// ======= end region =======
 
-func (ac Archer) addUnit(unit Unit) {}
-func (ac Archer) removeUnit(unit Unit) (bool, error) {
-	return false, errors.New("archer is leaf")
+type Archer struct {
+	Unit
 }
-func (ac Archer) bombardStrength() uint {
-	return 0
+
+type Tomp struct {
+	Unit
 }
 
 func removeSlice(x []Unit, r Unit) []Unit {
@@ -56,4 +57,18 @@ func find(x []Unit, r Unit) bool {
 		}
 	}
 	return false
+}
+
+func main() {
+	archer := Archer{Unit: Unit{bombandStrength: 10}}
+	tomp := Tomp{Unit: Unit{bombandStrength: 5}}
+	army := NewArmy()
+	army.addUnit(archer.Unit)
+	army.addUnit(tomp.Unit)
+	army.removeUnit(tomp.Unit)
+	sum := 0
+	for _, v := range army.units {
+		sum += int(v.bombandStrength)
+	}
+	fmt.Println(sum)
 }

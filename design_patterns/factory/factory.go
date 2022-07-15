@@ -1,7 +1,11 @@
+/**
+ * 工厂&&抽象工厂模式
+ */
 package main
 
 import "fmt"
 
+// ApptEncoder 产品接口
 type ApptEncoder interface {
 	encode() string
 }
@@ -18,12 +22,14 @@ func (m MegaApptEncoder) encode() string {
 	return "这是MegaApptEncoder 结构体 ApptEncoder 接口的实现"
 }
 
+// CommonsManager 工厂接口
 type CommonsManager interface {
 	GetHeader() string
 	GetApptEncoder() ApptEncoder
 	GetBottom() string
 }
 
+// TCommonsManager 工厂结构体 包含工厂接口
 type TCommonsManager struct {
 	cm CommonsManager
 }
